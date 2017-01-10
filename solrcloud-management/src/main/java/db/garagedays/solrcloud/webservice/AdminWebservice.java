@@ -45,9 +45,9 @@ public class AdminWebservice {
             @RequestParam(value = "configname", required = false) String configName
     ) throws IOException {
 
-        if (StringUtils.isBlank(configName) && configZip == null) {
+        if (StringUtils.isBlank(configName) && configZip.isEmpty()) {
             return ResponseEntity.badRequest().body("One of 'configName' or 'file' is required");
-        } else if (configZip != null) {
+        } else if (!configZip.isEmpty()) {
             final Path confDir = unpackUpload(configZip);
             try {
                 final SolrInstance instance = service.createCollection(collectionName, confDir, configclass);
@@ -56,9 +56,9 @@ public class AdminWebservice {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
             } finally {
-                Files.deleteIfExists(confDir);
+                PathUtils.delete(confDir);
             }
-        } else {
+        } else if (StringUtils.isNotBlank(configName)){
             try {
                 final SolrInstance instance = service.createCollection(collectionName, configName, configclass);
                 return ResponseEntity.created(instance.getBaseUrl()).body(instance);
@@ -66,6 +66,8 @@ public class AdminWebservice {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
             }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Whatever should happen now...");
         }
     }
 

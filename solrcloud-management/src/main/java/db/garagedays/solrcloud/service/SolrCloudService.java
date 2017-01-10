@@ -42,7 +42,7 @@ public class SolrCloudService {
 
     public SolrInstance createCollection(String collectionName, String configName, String configclass) throws InstanceInitException {
         try (final CloudSolrClient client = createSolrClient()) {
-            return getSolrInstance(collectionName, configName, client, configclass);
+            return createCollection(client, collectionName, configName, configclass);
         } catch (IOException | SolrServerException e) {
             throw new InstanceInitException("Cannot initialize collection", e);
         }
@@ -50,6 +50,7 @@ public class SolrCloudService {
 
     public SolrInstance createCollection(String collectionName, Path confDir, String configclass) throws InstanceInitException {
         try (final CloudSolrClient client = createSolrClient()) {
+            client.connect();
             final List<String> configs = client.getZkStateReader().getConfigManager().listConfigs();
 
             if (configs.contains(collectionName)) {
@@ -58,24 +59,30 @@ public class SolrCloudService {
             client.uploadConfig(findPath(confDir), collectionName);
             logger.info("Uploaded configuration '{}' to zookeeper {}", collectionName, zkHost);
 
-            return getSolrInstance(collectionName, collectionName, client, configclass);
+            return createCollection(client, collectionName, collectionName, configclass);
 
         } catch (IOException | SolrServerException e) {
             throw new InstanceInitException("Cannot initialize collection", e);
         }
     }
 
-    private SolrInstance getSolrInstance(String collectionName, String configName, CloudSolrClient client, String configclass) throws SolrServerException, IOException {
+    private SolrInstance createCollection(CloudSolrClient client, String collectionName, String configName, String configclass) throws SolrServerException, IOException {
+        if (listConfigSets().contains(configName)) {
+            if (!listCollections().contains(collectionName)) {
+                if (properties.getConfigs().containsKey(configclass)) {
+                    final ConfigClass configClass = properties.getConfigs().get(configclass);
 
-        if(properties.getConfigs().containsKey(configclass)) {
+                    final NamedList<Object> response = client.request(CollectionAdminRequest.createCollection(collectionName, configName, configClass.getShards(), configClass.getReplicas()));
+                    logger.info("Created collection '{}' with configuration '{}'", collectionName, configName);
+                    return new SolrInstance(response);
 
-            ConfigClass configClass = properties.getConfigs().get(configclass);
-
-            final NamedList<Object> response = client.request(CollectionAdminRequest.createCollection(collectionName, configName, configClass.getShards(), configClass.getReplicas()));
-            logger.info("Created collection '{}' with configuration '{}'", collectionName, configName);
-            return new SolrInstance(response);
-
-        } else throw new IOException("ConfigClass "+configclass+" is not defined");
+                } else throw new IOException("ConfigClass " + configclass + " is not defined");
+            } else {
+                throw new IOException("Collection with name '" + collectionName + "' already exists!");
+            }
+        } else {
+            throw new IOException("No configuration with name '" + configName + "' found!");
+        }
     }
 
     private CloudSolrClient createSolrClient() {
@@ -94,6 +101,18 @@ public class SolrCloudService {
             case 0: throw new InstanceInitException("Config does not contain solrconfig.xml");
             case 1: return files.get(0).getParent();
             default: throw new InstanceInitException("Config contains more then one solrconfig.xml");
+        }
+    }
+
+    public List<String> listCollections() {
+        try (final CloudSolrClient solrClient = createSolrClient()) {
+            final NamedList<Object> response = solrClient.request(CollectionAdminRequest.listCollections());
+            return response.getAll("collections").stream()
+                    .map(Object::toString)
+                    .collect(Collectors.toList());
+        } catch (IOException | SolrServerException e) {
+            logger.error("Error talking to Solr: {}", e.getMessage(), e);
+            return Collections.emptyList();
         }
     }
 

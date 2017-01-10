@@ -1,36 +1,23 @@
-package db.garagedays.solrcloud;
+package db.garagedays.solrcloud.service;
 
+import db.garagedays.solrcloud.model.SolrInstance;
+import db.garagedays.solrcloud.exception.InstanceInitException;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
-import org.apache.solr.client.solrj.request.CoreAdminRequest;
-import org.apache.solr.cloud.ZkCLI;
-import org.apache.solr.common.cloud.SolrZkClient;
-import org.apache.solr.common.cloud.ZkConfigManager;
 import org.apache.solr.common.util.NamedList;
-import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
@@ -40,11 +27,12 @@ import java.util.stream.Collectors;
 @Service
 public class ApplicationService {
 
+    @Value("${zk.host:localhost:9983}")
     private static final String zkHost = "localhost:9983";
 
     private Logger logger = LoggerFactory.getLogger(ApplicationService.class);
 
-    public SolrInstance create(File file) {
+    public SolrInstance create(File file) throws InstanceInitException {
 
         try {
             //unzip file
@@ -69,11 +57,11 @@ public class ApplicationService {
 
             logger.info("Created collection '{}' with configuration '{}'", collectionName, configName);
 
-        } catch (ZipException | IOException | SolrServerException e) {
-            e.printStackTrace();
-        }
+            return new SolrInstance();
 
-        return null;
+        } catch (ZipException | IOException | SolrServerException e) {
+            throw new InstanceInitException("Cannot initialize collection", e);
+        }
     }
 
     private Path findPath(Path tempFolder) throws IOException {

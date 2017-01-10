@@ -1,4 +1,4 @@
-package db.garagedays.solrcloud;
+package db.garagedays.solrcloud.model;
 
 /**
  * @author Thomas Kurz (tkurz@apache.org)

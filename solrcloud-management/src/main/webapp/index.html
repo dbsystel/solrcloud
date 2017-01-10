@@ -5,6 +5,13 @@
     <link rel="stylesheet" href="webjars/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="webjars/jquery/1.11.1/jquery.min.js"></script>
     <script src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        .activeRadio {
+            background-color: #F01414 !important;
+            border-color: lightgray !important;
+            box-shadow: 0 0 20px grey !important;
+        }
+    </style>
     <script type="text/javascript">
 
         $(function(){
@@ -14,6 +21,11 @@
                 });
                 onConfigNameChange();
             });
+
+            $('input[type=radio]').on('click', function(e){
+                $('input[type=radio]').parent().removeClass('activeRadio');
+                $(e.target).parent().addClass('activeRadio');
+            })
         });
 
         function onConfigNameChange() {
@@ -60,24 +72,24 @@
                 </div>
                 <div class="row" style="margin-bottom: 20px">
                     <div class="col-md-3 col-md-offset-3">
-                        <label style="width: 100%" class="btn btn-primary active">
+                        <label style="width: 100%" class="btn btn-primary activeRadio">
                             <h3>Standard</h3>
                             <p>20.000 Dokumente<br>5.000 Anfragen pro Tag</p>
-                            <input type="radio" name="configclass" id="option1" value="standard" checked>
+                            <input style="display: none" type="radio" name="configclass" id="option1" value="standard" checked>
                         </label>
                     </div>
                     <div class="col-md-3">
                         <label style="width: 100%" class="btn btn-primary active">
                             <h3>Performance</h3>
                             <p>20.000 Dokumente<br>20.000 Anfragen pro Tag</p>
-                            <input type="radio" name="configclass" id="option2" value="performance">
+                            <input style="display: none" type="radio" name="configclass" id="option2" value="performance">
                         </label>
                     </div>
                     <div class="col-md-3">
                         <label style="width: 100%" class="btn btn-primary active">
                             <h3>Enterprise</h3>
                             <p>1.000.000 Dokumente<br>50.000 Anfragen pro Tag</p>
-                            <input type="radio" name="configclass" id="option3" value="enterprise">
+                            <input style="display: none" type="radio" name="configclass" id="option3" value="enterprise">
                         </label>
                     </div>
                 </div>

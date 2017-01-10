@@ -40,7 +40,7 @@ public class ApplicationService {
             ZipFile zipFile = new ZipFile(file);
             zipFile.extractAll(temp.toFile().getAbsolutePath());
 
-            logger.info("File unziped to temporary directory " + temp.toFile().getAbsolutePath());
+            logger.info("File unziped to temporary directory {}", temp.toFile().getAbsolutePath());
 
             String configName = temp.getFileName().toString();
             String collectionName = temp.getFileName().toString();

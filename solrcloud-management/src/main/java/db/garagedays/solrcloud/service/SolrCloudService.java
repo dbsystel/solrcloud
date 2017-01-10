@@ -1,5 +1,7 @@
 package db.garagedays.solrcloud.service;
 
+import db.garagedays.solrcloud.model.ConfigClass;
+import db.garagedays.solrcloud.model.ConfigurationClassProperties;
 import db.garagedays.solrcloud.model.SolrInstance;
 import db.garagedays.solrcloud.exception.InstanceInitException;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -8,6 +10,7 @@ import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,16 +33,22 @@ public class SolrCloudService {
 
     private Logger logger = LoggerFactory.getLogger(SolrCloudService.class);
 
+    private ConfigurationClassProperties properties;
 
-    public SolrInstance createCollection(String collectionName, String configName) throws InstanceInitException {
+    @Autowired
+    public SolrCloudService(ConfigurationClassProperties properties) {
+        this.properties = properties;
+    }
+
+    public SolrInstance createCollection(String collectionName, String configName, String configclass) throws InstanceInitException {
         try (final CloudSolrClient client = createSolrClient()) {
-            return getSolrInstance(collectionName, configName, client);
+            return getSolrInstance(collectionName, configName, client, configclass);
         } catch (IOException | SolrServerException e) {
             throw new InstanceInitException("Cannot initialize collection", e);
         }
     }
 
-    public SolrInstance createCollection(String collectionName, Path confDir) throws InstanceInitException {
+    public SolrInstance createCollection(String collectionName, Path confDir, String configclass) throws InstanceInitException {
         try (final CloudSolrClient client = createSolrClient()) {
             final List<String> configs = client.getZkStateReader().getConfigManager().listConfigs();
 
@@ -49,17 +58,24 @@ public class SolrCloudService {
             client.uploadConfig(findPath(confDir), collectionName);
             logger.info("Uploaded configuration '{}' to zookeeper {}", collectionName, zkHost);
 
-            return getSolrInstance(collectionName, collectionName, client);
+            return getSolrInstance(collectionName, collectionName, client, configclass);
 
         } catch (IOException | SolrServerException e) {
             throw new InstanceInitException("Cannot initialize collection", e);
         }
     }
 
-    private SolrInstance getSolrInstance(String collectionName, String configName, CloudSolrClient client) throws SolrServerException, IOException {
-        final NamedList<Object> response = client.request(CollectionAdminRequest.createCollection(collectionName, configName, 2, 1));
-        logger.info("Created collection '{}' with configuration '{}'", collectionName, configName);
-        return new SolrInstance(response);
+    private SolrInstance getSolrInstance(String collectionName, String configName, CloudSolrClient client, String configclass) throws SolrServerException, IOException {
+
+        if(properties.getConfigs().containsKey(configclass)) {
+
+            ConfigClass configClass = properties.getConfigs().get(configclass);
+
+            final NamedList<Object> response = client.request(CollectionAdminRequest.createCollection(collectionName, configName, configClass.getShards(), configClass.getReplicas()));
+            logger.info("Created collection '{}' with configuration '{}'", collectionName, configName);
+            return new SolrInstance(response);
+
+        } else throw new IOException("ConfigClass "+configclass+" is not defined");
     }
 
     private CloudSolrClient createSolrClient() {
@@ -83,6 +99,7 @@ public class SolrCloudService {
 
     public List<String> listConfigSets() {
         try (final CloudSolrClient solrClient = createSolrClient()) {
+            solrClient.connect();
             return solrClient.getZkStateReader().getConfigManager().listConfigs();
         } catch (IOException e) {
             logger.error("Error talking to Solr: {}", e.getMessage(), e);

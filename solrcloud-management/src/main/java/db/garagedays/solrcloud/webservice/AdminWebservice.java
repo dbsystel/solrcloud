@@ -38,17 +38,21 @@ public class AdminWebservice {
 
     @PostMapping("/create")
     public ResponseEntity<?> createCollection(
-            @RequestParam(value = "name", required = false, defaultValue = "collection1") String collectionName,
-            @RequestParam(value = "configName", required = false) String configName,
-            @RequestParam(value = "file", required = false) MultipartFile configZip
+            @RequestParam(value="file") MultipartFile configZip,
+            @RequestParam("name") String name,
+            @RequestParam("email") String email,
+            @RequestParam("collection") String collectionName,
+            @RequestParam("configtype") Integer configtype,
+            @RequestParam("configclass") String configclass,
+            @RequestParam("configname") String configName
     ) throws IOException {
 
-        if (configName == null && configZip == null) {
-            return ResponseEntity.badRequest().body("One of 'configName' or 'file' is required");
-        } else if (configZip != null) {
+        if (configtype == 1 && configZip == null) {
+            return ResponseEntity.badRequest().body("configfile is required");
+        } else if (configtype == 1 && configZip != null) {
             final Path confDir = unpackUpload(configZip);
             try {
-                final SolrInstance instance = service.createCollection(collectionName, confDir);
+                final SolrInstance instance = service.createCollection(collectionName, confDir, configclass);
             return ResponseEntity.created(getInstanceLocation(instance)).body(instance);
             } catch (InstanceInitException e) {
                 e.printStackTrace();
@@ -58,7 +62,7 @@ public class AdminWebservice {
             }
         } else {
             try {
-                final SolrInstance instance = service.createCollection(collectionName, configName);
+                final SolrInstance instance = service.createCollection(collectionName, configName, configclass);
                 return ResponseEntity.created(getInstanceLocation(instance)).body(instance);
             } catch (InstanceInitException e) {
                 e.printStackTrace();

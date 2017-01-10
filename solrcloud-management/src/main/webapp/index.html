@@ -1,7 +1,24 @@
 <html>
 <head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="webjars/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="webjars/jquery/1.11.1/jquery.min.js"></script>
+    <script src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+
+        $(function(){
+            $.get('/configurations', function(data){
+                data.forEach(function(config) {
+                    $('#configname').append('<option>' + config + '</option>');
+                })
+            });
+        });
+
+        function switchConfig(elem) {
+            $('.config').hide();
+            $('#config'+$(elem).val()).show();
+        }
+
+    </script>
 </head>
 <body>
 <div class="container row">
@@ -26,6 +43,31 @@
                     <input type="text" id="collection" name="collection" class="form-control">
                 </div>
             </div>
+            <div class="row" style="margin-bottom: 20px">
+                <div class="col-md-3"></div>
+                <div class="col-md-3">
+                    <label style="width: 100%" class="btn btn-primary active">
+                        <h3>Standard</h3>
+                        <p>Bla</p>
+                        <input type="radio" name="configclass" id="option1" value="standard" checked>
+                    </label>
+                </div>
+                <div class="col-md-3">
+                    <label style="width: 100%" class="btn btn-primary active">
+                        <h3>Performance</h3>
+                        <p>Bla</p>
+                        <input type="radio" name="configclass" id="option2" value="performance">
+                    </label>
+                </div>
+                <div class="col-md-3">
+                    <label style="width: 100%" class="btn btn-primary active">
+                        <h3>Enterprise</h3>
+                        <p>Bla</p>
+                        <input type="radio" name="configclass" id="option3" value="enterprise">
+                    </label>
+                </div>
+            </div>
+            <!--
             <div class="form-group">
                 <label class="col-md-3 control-label" for="docs">Anzahl der Dokumente: </label>
                 <div class="col-md-9">
@@ -69,20 +111,29 @@
                     </select>
                 </div>
             </div>
+            -->
             <div class="form-group">
                 <label class="col-md-3 control-label" for="configtype">Konfigurationsart: </label>
                 <div class="col-md-9">
-                    <select id="configtype" name="configtype" class="form-control">
-                        <option value="0">Konfigurationsdatei hochladen</option>
-                        <option value="1">Template 'Search-API' verwenden</option>
+                    <select onchange="switchConfig(this)" id="configtype" name="configtype" class="form-control">
+                        <option value="0">Auswahl eines Templates</option>
+                        <option value="1">Upload der Konfiguration</option>
                     </select>
                 </div>
             </div>
-            <div class="form-group">
-                <label class="col-md-3 control-label" for="file">Konfigurationsart: </label>
+            <div id="config0" class="form-group config">
+                <label class="col-md-3 control-label" for="configname">Konfiguratstemplate: </label>
+                <div class="col-md-9">
+                    <select id="configname" name="configname" class="form-control">
+
+                    </select>
+                </div>
+            </div>
+            <div id="config1" class="form-group config" style="display: none;">
+                <label class="col-md-3 control-label" for="file">Konfigurationsfile: </label>
                 <div class="col-md-9">
                     <input name="file" id="file" type="file">
-                    <p class="help-block">Wählen Sie hier einen gezippten Konfigurationsordner aus.</p>
+                    <p class="help-block">Wählen Sie hier einen gezippten Konfigurationsordner aus, wenn du kein bestehendes template verwenden willst.</p>
                 </div>
             </div>
             <div class="button-group" style="text-align: center">

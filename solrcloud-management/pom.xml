@@ -14,6 +14,12 @@
         <version>1.4.3.RELEASE</version>
     </parent>
 
+    <properties>
+        <java.version>1.8</java.version>
+
+        <solr.version>6.3.0</solr.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -41,20 +47,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
-            <artifactId>solr-core</artifactId>
-            <version>6.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>6.3.0</version>
+            <version>${solr.version}</version>
         </dependency>
     </dependencies>
-
-    <properties>
-        <java.version>1.8</java.version>
-    </properties>
-
 
     <build>
         <plugins>

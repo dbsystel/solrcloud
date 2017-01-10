@@ -1,5 +1,6 @@
 package db.garagedays.solrcloud.service;
 
+import db.garagedays.solrcloud.model.SolrInstance;
 import db.garagedays.solrcloud.exception.InstanceInitException;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -9,6 +10,7 @@ import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 @Service
 public class ApplicationService {
 
+    @Value("${zk.host:localhost:9983}")
     private static final String zkHost = "localhost:9983";
 
     private Logger logger = LoggerFactory.getLogger(ApplicationService.class);

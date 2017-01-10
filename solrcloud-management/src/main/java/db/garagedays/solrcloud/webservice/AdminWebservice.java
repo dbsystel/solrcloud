@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -42,18 +41,17 @@ public class AdminWebservice {
             @RequestParam("name") String name,
             @RequestParam("email") String email,
             @RequestParam("collection") String collectionName,
-            @RequestParam("configtype") Integer configtype,
             @RequestParam("configclass") String configclass,
             @RequestParam("configname") String configName
     ) throws IOException {
 
-        if (configtype == 1 && configZip == null) {
-            return ResponseEntity.badRequest().body("configfile is required");
-        } else if (configtype == 1 && configZip != null) {
+        if (StringUtils.isBlank(configName) && configZip == null) {
+            return ResponseEntity.badRequest().body("One of 'configName' or 'file' is required");
+        } else if (configZip != null) {
             final Path confDir = unpackUpload(configZip);
             try {
                 final SolrInstance instance = service.createCollection(collectionName, confDir, configclass);
-            return ResponseEntity.created(getInstanceLocation(instance)).body(instance);
+            return ResponseEntity.created(instance.getBaseUrl()).body(instance);
             } catch (InstanceInitException e) {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
@@ -63,17 +61,12 @@ public class AdminWebservice {
         } else {
             try {
                 final SolrInstance instance = service.createCollection(collectionName, configName, configclass);
-                return ResponseEntity.created(getInstanceLocation(instance)).body(instance);
+                return ResponseEntity.created(instance.getBaseUrl()).body(instance);
             } catch (InstanceInitException e) {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
             }
         }
-    }
-
-    private URI getInstanceLocation(SolrInstance instance) {
-        // FIXME: maybe this causes a NullPointerException!
-        return null;
     }
 
     @GetMapping("/configurations")

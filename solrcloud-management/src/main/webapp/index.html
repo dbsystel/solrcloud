@@ -1,5 +1,7 @@
 <html>
 <head>
+    <meta charset="utf-8"/>
+
     <link rel="stylesheet" href="webjars/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="webjars/jquery/1.11.1/jquery.min.js"></script>
     <script src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -8,14 +10,20 @@
         $(function(){
             $.get('/configurations', function(data){
                 data.forEach(function(config) {
-                    $('#configname').append('<option>' + config + '</option>');
-                })
+                    $('#configname').append('<option value="' + config + '">' + config + '</option>');
+                });
+                onConfigNameChange();
             });
         });
 
-        function switchConfig(elem) {
-            $('.config').hide();
-            $('#config'+$(elem).val()).show();
+        function onConfigNameChange() {
+            var conf = $('#configname').find('option:selected').val();
+
+            if (conf == '') {
+                $('#config1').slideDown();
+            } else {
+                $('#config1').slideUp();
+            }
         }
 
     </script>
@@ -112,20 +120,11 @@
                 </div>
             </div>
             -->
-            <div class="form-group">
-                <label class="col-md-3 control-label" for="configtype">Konfigurationsart: </label>
-                <div class="col-md-9">
-                    <select onchange="switchConfig(this)" id="configtype" name="configtype" class="form-control">
-                        <option value="0">Auswahl eines Templates</option>
-                        <option value="1">Upload der Konfiguration</option>
-                    </select>
-                </div>
-            </div>
             <div id="config0" class="form-group config">
                 <label class="col-md-3 control-label" for="configname">Konfiguratstemplate: </label>
                 <div class="col-md-9">
-                    <select id="configname" name="configname" class="form-control">
-
+                    <select onchange="onConfigNameChange(this)" id="configname" name="configname" class="form-control">
+                        <option value="">Eigene Konfiguration hochladen</option>
                     </select>
                 </div>
             </div>

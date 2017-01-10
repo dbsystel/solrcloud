@@ -3,7 +3,7 @@ package db.garagedays.solrcloud.webservice;
 import db.garagedays.solrcloud.exception.InstanceInitException;
 import db.garagedays.solrcloud.model.SolrInstance;
 import db.garagedays.solrcloud.service.SolrCloudService;
-import org.apache.commons.io.FileUtils;
+import db.garagedays.solrcloud.utils.PathUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +37,12 @@ public class AdminWebservice {
 
     @PostMapping("/create")
     public ResponseEntity<?> createCollection(
-            @RequestParam(value="file") MultipartFile configZip,
+            @RequestParam(value = "file", required = false) MultipartFile configZip,
             @RequestParam("name") String name,
             @RequestParam("email") String email,
             @RequestParam("collection") String collectionName,
             @RequestParam("configclass") String configclass,
-            @RequestParam("configname") String configName
+            @RequestParam(value = "configname", required = false) String configName
     ) throws IOException {
 
         if (StringUtils.isBlank(configName) && configZip == null) {
@@ -51,7 +51,7 @@ public class AdminWebservice {
             final Path confDir = unpackUpload(configZip);
             try {
                 final SolrInstance instance = service.createCollection(collectionName, confDir, configclass);
-            return ResponseEntity.created(instance.getBaseUrl()).body(instance);
+                return ResponseEntity.created(instance.getBaseUrl()).body(instance);
             } catch (InstanceInitException e) {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
@@ -90,7 +90,7 @@ public class AdminWebservice {
             log.info("File unziped to temporary directory {}", tempDir);
 
         } catch (final Throwable t) {
-            FileUtils.deleteDirectory(tempDir.toFile());
+            PathUtils.delete(tempDir);
             throw t;
         }
         return tempDir;

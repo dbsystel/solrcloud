@@ -1,5 +1,7 @@
-package db.garagedays.solrcloud;
+package db.garagedays.solrcloud.webservice;
 
+import db.garagedays.solrcloud.exception.InstanceInitException;
+import db.garagedays.solrcloud.service.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +28,11 @@ public class AdminWebservice {
     public String handleFileUpload(
             @RequestParam("file") MultipartFile file) throws IOException {
 
-        service.create(convert(file));
+        try {
+            service.create(convert(file));
+        } catch (InstanceInitException e) {
+            e.printStackTrace();
+        }
 
         return "You successfully uploaded " + file.getOriginalFilename() + "!";
     }

@@ -3,8 +3,10 @@
     <meta charset="utf-8"/>
 
     <link rel="stylesheet" href="webjars/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="webjars/bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css">
     <script src="webjars/jquery/1.11.1/jquery.min.js"></script>
     <script src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="webjars/bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>
     <script type="text/javascript">
 
         $(function(){
@@ -13,6 +15,38 @@
                     $('#configname').append('<option value="' + config + '">' + config + '</option>');
                 });
                 onConfigNameChange();
+            });
+
+            $('#orderForm').bootstrapValidator({
+                // To use feedback icons, ensure that you use Bootstrap v3.1.0 or later
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: 'Bitte geben Sie Ihren Namen ein'
+                            }
+                        }
+                    },
+                    email: {
+                        validators: {
+                            notEmpty: {
+                                message: 'Bitte geben Sie Ihre Email-Addresse ein'
+                            }
+                        }
+                    },
+                    collectionname: {
+                        validators: {
+                            notEmpty: {
+                                message: 'Bitte geben Sie den Namen der Collection ein'
+                            }
+                        }
+                    }
+                }
             });
         });
 
@@ -32,7 +66,7 @@
 <div class="container row">
     <h2 style="text-align: center">Bestellformular: Solr Cloud Service</h2>
     <div class="col-md-9 offset-md-3">
-        <form  class="form-horizontal row" action="/create" method="post" enctype="multipart/form-data">
+        <form id="orderForm" class="form-horizontal row" action="/create" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label  class="col-md-3 control-label" for="name">Name: </label>
                 <div class="col-md-9">

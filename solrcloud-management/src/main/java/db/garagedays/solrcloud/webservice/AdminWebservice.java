@@ -76,6 +76,11 @@ public class AdminWebservice {
         return service.listConfigSets();
     }
 
+    @GetMapping("/collections")
+    public List<String> listCollections() {
+        return service.listCollections();
+    }
+
     private Path unpackUpload(MultipartFile configZip) throws IOException {
         final Path tempDir = Files.createTempDirectory(StringUtils.defaultString(configZip.getOriginalFilename(), "collection-config"));
         try {

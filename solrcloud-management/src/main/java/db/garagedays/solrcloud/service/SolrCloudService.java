@@ -67,8 +67,8 @@ public class SolrCloudService {
     }
 
     private SolrInstance createCollection(CloudSolrClient client, String collectionName, String configName, String configclass) throws SolrServerException, IOException {
-        if (listConfigSets().contains(configName)) {
-            if (!listCollections().contains(collectionName)) {
+        if (listConfigSets(client).contains(configName)) {
+            if (!listCollections(client).contains(collectionName)) {
                 if (properties.getConfigs().containsKey(configclass)) {
                     final ConfigClass configClass = properties.getConfigs().get(configclass);
 
@@ -106,23 +106,31 @@ public class SolrCloudService {
 
     public List<String> listCollections() {
         try (final CloudSolrClient solrClient = createSolrClient()) {
-            final NamedList<Object> response = solrClient.request(CollectionAdminRequest.listCollections());
-            return response.getAll("collections").stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toList());
+            return listCollections(solrClient);
         } catch (IOException | SolrServerException e) {
             logger.error("Error talking to Solr: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }
 
+    private List<String> listCollections(CloudSolrClient solrClient) throws SolrServerException, IOException {
+        final NamedList<Object> response = solrClient.request(CollectionAdminRequest.listCollections());
+        return response.getAll("collections").stream()
+                .map(Object::toString)
+                .collect(Collectors.toList());
+    }
+
     public List<String> listConfigSets() {
         try (final CloudSolrClient solrClient = createSolrClient()) {
-            solrClient.connect();
-            return solrClient.getZkStateReader().getConfigManager().listConfigs();
+            return listConfigSets(solrClient);
         } catch (IOException e) {
             logger.error("Error talking to Solr: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+
+    private List<String> listConfigSets(CloudSolrClient solrClient) throws IOException {
+        solrClient.connect();
+        return solrClient.getZkStateReader().getConfigManager().listConfigs();
     }
 }

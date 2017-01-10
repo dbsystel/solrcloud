@@ -1,8 +1,95 @@
 <html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
 <body>
-<form action="/create" method="post" enctype="multipart/form-data">
-    Zipped Configuration: <input name="file" type="file"><br>
-    <input type="submit" value="Submit"><br>
-</form>
+<div class="container row">
+    <h2 style="text-align: center">Bestellformular: Solr Cloud Service</h2>
+    <div class="col-md-9 offset-md-3">
+        <form  class="form-horizontal row" action="/create" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label  class="col-md-3 control-label" for="name">Name: </label>
+                <div class="col-md-9">
+                    <input type="text" id="name" name="name" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="email">Email: </label>
+                <div class="col-md-9">
+                    <input type="text" id="email" name="email" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="collection">Collection Name: </label>
+                <div class="col-md-9">
+                    <input type="text" id="collection" name="collection" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="docs">Anzahl der Dokumente: </label>
+                <div class="col-md-9">
+                    <select id="docs" name="docs" class="form-control">
+                        <option value="10000">10.000</option>
+                        <option value="100000">100.000</option>
+                        <option  value="500000">500.000</option>
+                        <option value="-1">mehr</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="docsize">Durchschnittliche Dokumentengröße: </label>
+                <div class="col-md-9">
+                    <select id="docsize" name="docsize" class="form-control">
+                        <option value="200">200 kb</option>
+                        <option value="400">400 kb</option>
+                        <option value="800">500 kb</option>
+                        <option value="-1">mehr</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="updates">Update Frequenz: </label>
+                <div class="col-md-9">
+                    <select id="updates" name="updates" class="form-control">
+                        <option value="1">stündlich</option>
+                        <option value="0">täglich</option>
+                        <option value="2">kontinuierlich</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="queries">Anfragen pro Tag: </label>
+                <div class="col-md-9">
+                    <select id="queries" name="queries" class="form-control">
+                        <option value="10000">10.000</option>
+                        <option value="100000">100.000</option>
+                        <option  value="500000">500.000</option>
+                        <option value="-1">mehr</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="configtype">Konfigurationsart: </label>
+                <div class="col-md-9">
+                    <select id="configtype" name="configtype" class="form-control">
+                        <option value="0">Konfigurationsdatei hochladen</option>
+                        <option value="1">Template 'Search-API' verwenden</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="file">Konfigurationsart: </label>
+                <div class="col-md-9">
+                    <input name="file" id="file" type="file">
+                    <p class="help-block">Wählen Sie hier einen gezippten Konfigurationsordner aus.</p>
+                </div>
+            </div>
+            <div class="button-group" style="text-align: center">
+                <input type="submit" class="btn btn-default" value="Abschicken">
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>

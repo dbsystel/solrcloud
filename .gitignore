@@ -1,0 +1,3 @@
+*.iml
+solrcloud-management/.idea
+solrcloud-management/target

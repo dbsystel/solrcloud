@@ -15,6 +15,6 @@ public class SolrInstance {
     }
 
     public URI getBaseUrl() {
-        return null;
+        return URI.create("http://localhost:9090/");
     }
 }

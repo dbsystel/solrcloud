@@ -7,6 +7,7 @@ import db.garagedays.solrcloud.exception.InstanceInitException;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
+import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,9 @@ public class SolrCloudService {
 
     @Value("${zk.host:localhost:9983}")
     private final String zkHost = "localhost:9983";
+
+    @Value("${kong.host:localhost:1234}")
+    private final String kongHost = "localhost:1234";
 
     private Logger logger = LoggerFactory.getLogger(SolrCloudService.class);
 
@@ -72,9 +76,18 @@ public class SolrCloudService {
                 if (properties.getConfigs().containsKey(configclass)) {
                     final ConfigClass configClass = properties.getConfigs().get(configclass);
 
-                    final NamedList<Object> response = client.request(CollectionAdminRequest.createCollection(collectionName, configName, configClass.getShards(), configClass.getReplicas()));
+                    //create collection
+                    CollectionAdminResponse response =
+                            CollectionAdminRequest
+                            .Create
+                            .createCollection(collectionName, configName, configClass.getShards(), configClass.getReplicas())
+                            .setMaxShardsPerNode(2)
+                            .process(client)
+                    ;
+
                     logger.info("Created collection '{}' with configuration '{}'", collectionName, configName);
-                    return new SolrInstance(response);
+
+                    return new SolrInstance(kongHost,configName,response);
 
                 } else throw new IOException("ConfigClass " + configclass + " is not defined");
             } else {
@@ -115,9 +128,7 @@ public class SolrCloudService {
 
     private List<String> listCollections(CloudSolrClient solrClient) throws SolrServerException, IOException {
         final NamedList<Object> response = solrClient.request(CollectionAdminRequest.listCollections());
-        return response.getAll("collections").stream()
-                .map(Object::toString)
-                .collect(Collectors.toList());
+        return ((List)response.get("collections"));
     }
 
     public List<String> listConfigSets() {

@@ -19,7 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -79,6 +81,11 @@ public class AdminWebservice {
     @GetMapping("/collections")
     public List<String> listCollections() {
         return service.listCollections();
+    }
+
+    @PostMapping("/cn-check")
+    public Map<String,Boolean> checkCollectionName(@RequestParam("collection") String name) {
+        return Collections.singletonMap("valid",!listCollections().contains(name));
     }
 
     private Path unpackUpload(MultipartFile configZip) throws IOException {

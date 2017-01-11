@@ -13,7 +13,7 @@
             box-shadow: 0 0 20px grey !important;
         }
     </style>
-    <script src="webjars/bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>
+    <script src="webjars/bootstrapvalidator/0.5.3/js/bootstrapValidator.js"></script>
     <script type="text/javascript">
 
         $(function(){
@@ -27,9 +27,10 @@
             $('input[type=radio]').on('click', function(e){
                 $('input[type=radio]').parent().removeClass('activeRadio');
                 $(e.target).parent().addClass('activeRadio');
-            })
+            });
 
             $('#orderForm').bootstrapValidator({
+                live:'enabled',
                 // To use feedback icons, ensure that you use Bootstrap v3.1.0 or later
                 feedbackIcons: {
                     valid: 'glyphicon glyphicon-ok',
@@ -48,13 +49,22 @@
                         validators: {
                             notEmpty: {
                                 message: 'Bitte geben Sie Ihre Email-Addresse ein'
+                            },
+                            emailAddress: {
+                                message: 'Bitte geben sie eine valide Email-Addresse ein'
                             }
                         }
                     },
-                    collectionname: {
+                    collection: {
                         validators: {
                             notEmpty: {
                                 message: 'Bitte geben Sie den Namen der Collection ein'
+                            },
+                            remote: {
+                                type: 'POST',
+                                url: '/cn-check',
+                                message: 'Dieser Name ist bereits vergeben. Bitte wählen Sie einen anderen',
+                                delay: 500
                             }
                         }
                     }

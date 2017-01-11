@@ -83,6 +83,9 @@
                     data: formData,
                     success: function (data) {
                         //redirect
+                        if(!data.key) {
+                            alert("Instanz wurde erzeugt aber noch nicht am API gateway freigeschalten");
+                        }
                         window.location = 'display.html?new=true&name=' + data.name + '&type=' + data.type + '&url=' + data.url + '&key=' + data.key;
                     },
                     error: function(error){

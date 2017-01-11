@@ -96,10 +96,10 @@ public class SolrCloudService {
                         kongService.createUser(user);
                         String key = kongService.createApiKey(user);
 
-                        return new SolrInstance(kongHost,configName,configclass,response,key);
+                        return new SolrInstance(kongHost,collectionName,configclass,response,key);
 
                     } catch (Exception e) {
-                        throw new IOException("Cannot talk to kong");
+                        return new SolrInstance(kongHost,collectionName,configclass,response,null);
                     }
 
                 } else throw new IOException("ConfigClass " + configclass + " is not defined");

@@ -1,22 +1,20 @@
 package db.garagedays.solrcloud.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -25,6 +23,8 @@ import java.util.UUID;
  */
 @Service
 public class KongService {
+
+    private Logger logger = LoggerFactory.getLogger(KongService.class);
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -54,12 +54,14 @@ public class KongService {
             CloseableHttpResponse response = httpclient.execute(post);
 
             if(response.getStatusLine().getStatusCode() >= 400) {
+                logger.warn("Error ({}): {}", response.getStatusLine().getStatusCode(), IOUtils.toString(response.getEntity().getContent()));
                 throw new Exception("Cannot talk to Kong");
             }
 
             response.close();
 
         } catch (IOException e) {
+            e.printStackTrace();
             throw new Exception("Cannot talk to Kong",e);
         } finally {
             httpclient.close();
@@ -85,12 +87,14 @@ public class KongService {
             CloseableHttpResponse response = httpclient.execute(post);
 
             if(response.getStatusLine().getStatusCode() >= 400) {
+                logger.warn("Error ({}): {}",response.getStatusLine().getStatusCode(), IOUtils.toString(response.getEntity().getContent()));
                 throw new Exception("Cannot talk to Kong");
             }
 
             response.close();
 
         } catch (IOException e) {
+            e.printStackTrace();
             throw new Exception("Cannot talk to Kong",e);
         } finally {
             httpclient.close();
@@ -115,12 +119,14 @@ public class KongService {
             CloseableHttpResponse response = httpclient.execute(post);
 
             if(response.getStatusLine().getStatusCode() >= 400 && response.getStatusLine().getStatusCode() != 409) {
+                logger.warn("Error ({}): {}",response.getStatusLine().getStatusCode(), IOUtils.toString(response.getEntity().getContent()));
                 throw new Exception("Cannot create user");
             }
 
             response.close();
 
         } catch (IOException e) {
+            e.printStackTrace();
             throw new Exception("Cannot create user",e);
         } finally {
             httpclient.close();
@@ -148,12 +154,14 @@ public class KongService {
             CloseableHttpResponse response = httpclient.execute(post);
 
             if(response.getStatusLine().getStatusCode() >= 400) {
+                logger.warn("Error ({}): {}",response.getStatusLine().getStatusCode(), IOUtils.toString(response.getEntity().getContent()));
                 throw new Exception("Cannot create user");
             }
 
             response.close();
 
         } catch (IOException e) {
+            e.printStackTrace();
             throw new Exception("Cannot create user",e);
         } finally {
             httpclient.close();

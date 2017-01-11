@@ -77,6 +77,16 @@
             <artifactId>bootstrapvalidator</artifactId>
             <version>0.5.3</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>20.0</version>
+        </dependency>
 
         <!-- Test -->
         <dependency>

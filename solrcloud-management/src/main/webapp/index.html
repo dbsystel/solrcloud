@@ -69,6 +69,31 @@
                         }
                     }
                 }
+            })
+            .on('success.form.bv', function(e) {
+
+                //disable the default form submission
+                e.preventDefault();
+                //grab all form data
+                var formData = new FormData($(this)[0]);
+
+                $.ajax({
+                    url: '/create',
+                    type: 'POST',
+                    data: formData,
+                    success: function (data) {
+                        //redirect
+                        window.location = 'display.html?new=true&name=' + data.name + '&type=' + data.type + '&url=' + data.url + '&key=' + data.key;
+                    },
+                    error: function(error){
+                        console.log(error);
+                        var response = JSON.parse(error.responseText);
+                        alert("Es ist ein Fehler aufgetreten: " + response.message ? response.message : response.error);
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
             });
         });
 
@@ -95,7 +120,7 @@
             </div>
         </div>
         <div class="col-md-10">
-            <form  id="orderForm" class="form-horizontal row" action="/create" method="post" enctype="multipart/form-data">
+            <form  autocomplete="off" id="orderForm" class="form-horizontal row" action="/create" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label  class="col-md-3 control-label" for="name">Name: </label>
                     <div class="col-md-9">
@@ -105,11 +130,11 @@
                 <div class="form-group">
                     <label class="col-md-3 control-label" for="email">Email: </label>
                     <div class="col-md-9">
-                        <input type="text" id="email" name="email" class="form-control">
+                        <input autocomplete="on" type="text" id="email" name="email" class="form-control">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-md-3 control-label" for="collection">Collection Name: </label>
+                    <label class="col-md-3 control-label" for="collection">Instanz Name: </label>
                     <div class="col-md-9">
                         <input type="text" id="collection" name="collection" class="form-control">
                     </div>
@@ -123,14 +148,14 @@
                         </label>
                     </div>
                     <div class="col-md-3">
-                        <label style="width: 100%" class="btn btn-primary active">
+                        <label style="width: 100%" class="btn btn-primary">
                             <h3>Performance</h3>
                             <p>20.000 Dokumente<br>20.000 Anfragen pro Tag</p>
                             <input style="display: none" type="radio" name="configclass" id="option2" value="performance">
                         </label>
                     </div>
                     <div class="col-md-3">
-                        <label style="width: 100%" class="btn btn-primary active">
+                        <label style="width: 100%" class="btn btn-primary">
                             <h3>Enterprise</h3>
                             <p>1.000.000 Dokumente<br>50.000 Anfragen pro Tag</p>
                             <input style="display: none" type="radio" name="configclass" id="option3" value="enterprise">
@@ -197,7 +222,7 @@
                         <p class="help-block">Wählen Sie hier einen gezippten Konfigurationsordner aus, wenn du kein bestehendes template verwenden willst.</p>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" style="margin-bottom: 50px">
                     <div class="button-group col-md-offset-6">
                         <input type="submit" class="btn btn-default" value="Abschicken">
                     </div>

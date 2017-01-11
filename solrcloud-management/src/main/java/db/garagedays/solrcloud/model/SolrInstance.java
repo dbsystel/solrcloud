@@ -14,18 +14,36 @@ import java.net.URISyntaxException;
  */
 public class SolrInstance {
 
-    private String host,name;
+    private String host,name,type,key;
 
-    public SolrInstance(String host, String name, CollectionAdminResponse response) {
+    public SolrInstance(String host, String name, String type, CollectionAdminResponse response,String key) {
         this.host = host;
         this.name = name;
+        this.type = type;
+        this.key = key;
     }
 
-    public URI getBaseUrl() throws IOException {
+    public URI getUrl() throws IOException {
         try {
-            return new URIBuilder().setHost(host).setPath(name).build();
+            return new URI(host + '/' + name);//TODO
         } catch (URISyntaxException e) {
             throw new IOException("Cannot create collection URL",e);
         }
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getKey() {
+        return key;
     }
 }

@@ -52,8 +52,8 @@ public class AdminWebservice {
         } else if (!configZip.isEmpty()) {
             final Path confDir = unpackUpload(configZip);
             try {
-                final SolrInstance instance = service.createCollection(collectionName, confDir, configclass);
-                return ResponseEntity.created(instance.getBaseUrl()).body(instance);
+                final SolrInstance instance = service.createCollection(collectionName, confDir, configclass,name);
+                return ResponseEntity.created(instance.getUrl()).body(instance);
             } catch (InstanceInitException e) {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
@@ -62,8 +62,8 @@ public class AdminWebservice {
             }
         } else if (StringUtils.isNotBlank(configName)){
             try {
-                final SolrInstance instance = service.createCollection(collectionName, configName, configclass);
-                return ResponseEntity.created(instance.getBaseUrl()).body(instance);
+                final SolrInstance instance = service.createCollection(collectionName, configName, configclass,name);
+                return ResponseEntity.created(instance.getUrl()).body(instance);
             } catch (InstanceInitException e) {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
@@ -76,6 +76,11 @@ public class AdminWebservice {
     @GetMapping("/configurations")
     public List<String> listConfigurations() {
         return service.listConfigSets();
+    }
+
+    @GetMapping("/status")
+    public Object getCollectionStatus(@RequestParam("name") String name) throws Exception {
+        return service.getCollectionStatus(name);
     }
 
     @GetMapping("/collections")

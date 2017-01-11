@@ -30,10 +30,13 @@ import java.util.stream.Collectors;
 public class SolrCloudService {
 
     @Value("${zk.host:localhost:9983}")
-    private final String zkHost = "localhost:9983";
+    private String zkHost = "localhost:9983";
 
     @Value("${kong.host:localhost:1234}")
-    private final String kongHost = "localhost:1234";
+    private String kongHost = "localhost:1234";
+
+    @Autowired
+    KongService kongService;
 
     private Logger logger = LoggerFactory.getLogger(SolrCloudService.class);
 
@@ -44,15 +47,15 @@ public class SolrCloudService {
         this.properties = properties;
     }
 
-    public SolrInstance createCollection(String collectionName, String configName, String configclass) throws InstanceInitException {
+    public SolrInstance createCollection(String collectionName, String configName, String configclass, String user) throws InstanceInitException {
         try (final CloudSolrClient client = createSolrClient()) {
-            return createCollection(client, collectionName, configName, configclass);
+            return createCollection(client, collectionName, configName, configclass, user);
         } catch (IOException | SolrServerException e) {
             throw new InstanceInitException("Cannot initialize collection", e);
         }
     }
 
-    public SolrInstance createCollection(String collectionName, Path confDir, String configclass) throws InstanceInitException {
+    public SolrInstance createCollection(String collectionName, Path confDir, String configclass, String user) throws InstanceInitException {
         try (final CloudSolrClient client = createSolrClient()) {
             client.connect();
             final List<String> configs = client.getZkStateReader().getConfigManager().listConfigs();
@@ -63,14 +66,14 @@ public class SolrCloudService {
             client.uploadConfig(findPath(confDir), collectionName);
             logger.info("Uploaded configuration '{}' to zookeeper {}", collectionName, zkHost);
 
-            return createCollection(client, collectionName, collectionName, configclass);
+            return createCollection(client, collectionName, collectionName, configclass, user);
 
         } catch (IOException | SolrServerException e) {
             throw new InstanceInitException("Cannot initialize collection", e);
         }
     }
 
-    private SolrInstance createCollection(CloudSolrClient client, String collectionName, String configName, String configclass) throws SolrServerException, IOException {
+    private SolrInstance createCollection(CloudSolrClient client, String collectionName, String configName, String configclass, String user) throws SolrServerException, IOException {
         if (listConfigSets(client).contains(configName)) {
             if (!listCollections(client).contains(collectionName)) {
                 if (properties.getConfigs().containsKey(configclass)) {
@@ -87,7 +90,17 @@ public class SolrCloudService {
 
                     logger.info("Created collection '{}' with configuration '{}'", collectionName, configName);
 
-                    return new SolrInstance(kongHost,configName,response);
+                    try {
+                        kongService.registerCollectionEndpoint(collectionName);
+                        kongService.activateKeyPlugin(collectionName);
+                        kongService.createUser(user);
+                        String key = kongService.createApiKey(user);
+
+                        return new SolrInstance(kongHost,configName,configclass,response,key);
+
+                    } catch (Exception e) {
+                        throw new IOException("Cannot talk to kong");
+                    }
 
                 } else throw new IOException("ConfigClass " + configclass + " is not defined");
             } else {
@@ -143,5 +156,16 @@ public class SolrCloudService {
     private List<String> listConfigSets(CloudSolrClient solrClient) throws IOException {
         solrClient.connect();
         return solrClient.getZkStateReader().getConfigManager().listConfigs();
+    }
+
+    public Object getCollectionStatus(String name) throws Exception {
+        try (final CloudSolrClient client = createSolrClient()) {
+            client.connect();
+            if (!listCollections(client).contains(name)) {
+                return null; //TODO
+            } else throw new IOException("Collection does not exist");
+        } catch (IOException | SolrServerException e) {
+            throw new Exception("Cannot initialize collection", e);
+        }
     }
 }

@@ -1,0 +1,142 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+
+    <link rel="stylesheet" href="webjars/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="webjars/bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css">
+    <script src="webjars/jquery/1.11.1/jquery.min.js"></script>
+    <script src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        .activeRadio {
+            background-color: #F01414 !important;
+            border-color: lightgray !important;
+            box-shadow: 0 0 20px grey !important;
+        }
+
+        .lower {
+            background-color: gray !important;
+            border-color: gray !important;
+            opacity: 0.5;
+        }
+    </style>
+    <script type="application/javascript">
+
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+        };
+
+        var collectionUrl = getUrlParameter('url');
+        var collectionKey = getUrlParameter('key');
+        var collectionName = getUrlParameter('name');
+        var collectionType = getUrlParameter('type');
+        var isNew = getUrlParameter('new') == 'true';
+
+        $(document).ready(function(){
+            $('#col_name').text(collectionName);
+            $('#col_type').text(collectionType);
+            $('#col_key').text(collectionKey);
+            $('#col_url').append(
+                    $('<a>').attr('href',collectionUrl).text(collectionUrl)
+            );
+
+            switch(collectionType) {
+                case 'standard':
+                    $('input[type=radio][value=standard]').parent().addClass('activeRadio');
+                    break;
+                case 'performance':
+                    $('input[type=radio][value=standard]').parent().addClass('lower');
+                    $('input[type=radio][value=performance]').parent().addClass('activeRadio');
+                    break;
+                case 'enterprise':
+                    $('input[type=radio][value=standard]').parent().addClass('lower');
+                    $('input[type=radio][value=performance]').parent().addClass('lower');
+                    $('input[type=radio][value=enterprise]').parent().addClass('activeRadio');
+                    break;
+            }
+        });
+
+        function upgrade(type) {
+            alert('ToDo');
+        }
+
+        $(function() {
+            $('input[type=radio]').on('click', function (e) {
+                if($(e.target).parent().hasClass('lower')) {
+                    alert('Im deine Insatz zu verkleinern, wende dich bitte an help@solrcloud.bahn.de');
+                } else {
+                    var confirmed = confirm('Wollen sie ihre Instanz wirkich upgraden?');
+                    if(confirmed) {
+                        upgrade($(e.target).val());
+                    }
+                }
+            });
+
+            //get status
+            $.get('/status?name=' + collectionName, function(data) {
+                console.log(data);//TODO
+            })
+        });
+    </script>
+    <script src="webjars/bootstrapvalidator/0.5.3/js/bootstrapValidator.js"></script>
+</head>
+<body>
+<div class="row" style="background-color: #f1f1f1">
+    <div class="col-md-10 col-md-offset-1" style="box-shadow: 0 0 10px gray;background-color: white">
+        <img src="https://www.bahn.de/common/view/static/v8/img/db_em_rgb_100px.svg" style="width: 70px;margin: 20px 20px">
+        <div class="container" style="width: 100%;text-align: center;">
+            <div class="jumbotron">
+                <h1 style="font-weight: 200"><img src="http://lucene.apache.org/solr/assets/identity/Solr_Logo_on_white.png" style="width: 200px;margin-top: -65px"> as a Service</h1>
+                <p>Verwalte deine Solr Cloud Instanz!</p>
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="row col-md-9 col-md-offset-3">
+                <table class="table">
+                    <tr><th>Name der Instanz</th><td id="col_name"></td></tr>
+                    <tr><th>Typ</th><td id="col_type"></td></tr>
+                    <tr><th>URL</th><td id="col_url"></td></tr>
+                    <tr><th>Key</th><td id="col_key"></td></tr>
+                </table>
+            </div>
+            <div class="row" style="margin-top:60px;margin-bottom:30px">
+                <h3 class="col-md-offset-3">Hol dir mehr Power!</h3>
+            </div>
+            <div class="row" style="margin-bottom: 20px">
+                <div class="col-md-3 col-md-offset-3">
+                    <label style="width: 100%" class="btn btn-primary">
+                        <h3>Standard</h3>
+                        <p>20.000 Dokumente<br>5.000 Anfragen pro Tag</p>
+                        <input style="display: none" type="radio" name="configclass" id="option1" value="standard" checked>
+                    </label>
+                </div>
+                <div class="col-md-3">
+                    <label style="width: 100%" class="btn btn-primary">
+                        <h3>Performance</h3>
+                        <p>20.000 Dokumente<br>20.000 Anfragen pro Tag</p>
+                        <input style="display: none" type="radio" name="configclass" id="option2" value="performance">
+                    </label>
+                </div>
+                <div class="col-md-3">
+                    <label style="width: 100%" class="btn btn-primary">
+                        <h3>Enterprise</h3>
+                        <p>1.000.000 Dokumente<br>50.000 Anfragen pro Tag</p>
+                        <input style="display: none" type="radio" name="configclass" id="option3" value="enterprise">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
